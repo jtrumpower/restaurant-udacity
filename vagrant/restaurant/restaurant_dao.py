@@ -46,11 +46,9 @@ def getRestaurant(id):
 	return restaurant
 
 def updateRestaurant(id, newName):
-	print "update restaurant"
 	session = getSession()
 	try:
-		restaurant = session.query(Restaurant).filter_by(id = id)
-		print restaurant.name
+		restaurant = session.query(Restaurant).filter_by(id = id).one()
 		restaurant.name = newName
 		session.add(restaurant)
 		session.commit()
@@ -61,10 +59,9 @@ def updateRestaurant(id, newName):
 		session.close()
 
 def deleteRestaurant(id):
-	print "update restaurant"
 	session = getSession()
 	try:
-		restaurant = session.query(Restaurant).filter_by(id = id)
+		restaurant = session.query(Restaurant).filter_by(id = id).one()
 		session.delete(restaurant)
 		session.commit()
 	except:

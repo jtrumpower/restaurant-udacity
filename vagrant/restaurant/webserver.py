@@ -23,7 +23,6 @@ class webServerHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         self.wfile.write(output)
-        # print output
         return
       elif self.path.endswith("/restaurants/new"):
         self.send_response(200)
@@ -35,12 +34,10 @@ class webServerHandler(BaseHTTPRequestHandler):
         output += '''<form method='POST' enctype='multipart/form-data' action='/restaurants/new'><input name="name" placeholder="Restaurant name" type="text" ><input type="submit" value="Submit"> </form>'''
         output += "</body></html>"
         self.wfile.write(output)
-        # print output
         return
       elif self.path.endswith("/edit"):
         id = self.path.split("/")[2]
         restaurant = restaurant_dao.getRestaurant(id)
-        print restaurant.name
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
@@ -49,7 +46,6 @@ class webServerHandler(BaseHTTPRequestHandler):
         output += '''<form method='POST' enctype='multipart/form-data' action='/restaurant/%s/edit'><h3>%s</h3></br /><input type="text" name="name" placeholder="New name"><input type="submit" value="Update" /></form>''' % (restaurant.id,restaurant.name)
         output += "</body></html>"
         self.wfile.write(output)
-        # print output
         return
       elif self.path.endswith("/delete"):
         id = self.path.split("/")[2]
@@ -63,7 +59,6 @@ class webServerHandler(BaseHTTPRequestHandler):
         output += '''<form method='POST' enctype='multipart/form-data' action='/restaurant/%s/delete'><a href="/restaurants"><input type="button" value="no" /></a><input type="submit" value="Submit"> </form>''' % restaurant.id
         output += "</body></html>"
         self.wfile.write(output)
-        # print output
         return
 
 
@@ -80,12 +75,12 @@ class webServerHandler(BaseHTTPRequestHandler):
         fields = cgi.parse_multipart(self.rfile, pdict)
 
       if self.path.endswith("/restaurants/new"):
-        name = fields.get('name')
+        name = fields.get('name')[0]
         restaurant_dao.addRestaurant(name)
         return
       elif self.path.endswith("/edit"):
         id = self.path.split("/")[2]
-        name = fields.get('name')
+        name = fields.get('name')[0]
         restaurant_dao.updateRestaurant(id, name)
         return
       elif self.path.endswith("/delete"):
