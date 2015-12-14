@@ -33,7 +33,7 @@ class webServerHandler(BaseHTTPRequestHandler):
         output = ""
         output += "<html><body>"
         output += "<h1>New Restaurant</h1>"
-        output += '''<form method='POST' enctype='multipart/form-data' action='/restaurants/new'><input name="name" placeholder="Restaurant name" type="text" ><input type="submit" value="Submit"> </form>'''
+        output += '''<form method='POST' enctype='multipart/form-data' action='/restaurants/new'><input name="name" placeholder="Restaurant name" type="text" ><input type="submit" value="Create"></form>'''
         output += "</body></html>"
         self.wfile.write(output)
         return
