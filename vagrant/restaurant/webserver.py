@@ -11,13 +11,15 @@ class webServerHandler(BaseHTTPRequestHandler):
         restaurants = restaurant_dao.getRestaurants()
         output = ""
         output += "<html><body>"
+        output += "<h3><a href='/restaurants/new'>Make a new Restaurant</a></h3>"
         for restaurant in restaurants:
           output += "<div>"
           output += "<h3>%s</h3>" % restaurant.name
           output += "<a href='/restaurant/%s/edit'>Edit</a><br />" % restaurant.id
           output += "<a href='/restaurant/%s/delete'>Delete</a>" % restaurant.id
           output += "</div>"
-          output += "</body></html>"
+        
+        output += "</body></html>"
 
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
