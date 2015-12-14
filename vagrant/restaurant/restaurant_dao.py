@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Restaurant, MenuItem
 
 def getSession():
-	engine = create_engine('sqlite:///restaurtantmenu.db')
+	engine = create_engine('sqlite:///restaurantmenu.db')
 	Base.metadata.bind = engine
 	DBSession = sessionmaker(bind = engine)
 	session = DBSession()
@@ -11,29 +11,66 @@ def getSession():
 
 def addRestaurant(name):
 	session = getSession()
-	restaurant = Restaurant(name = name)
-	session.add(restaurant)
-	session.commit()
+	try:
+		restaurant = Restaurant(name = name)
+		session.add(restaurant)
+		session.commit()
+	except:
+		session.rollback()
+		raise
+	finally:
+		session.close()
 
 def getRestaurants():
 	session = getSession()
-	restaurants = session.query(Restaurant).all()
+	try: 
+		restaurants = session.query(Restaurant).all()
+	except:
+		session.rollback()
+		raise
+	finally:
+		session.close()
+
 	return restaurants
 
 def getRestaurant(id):
 	session = getSession()
-	restaurant = session.query(Restaurant).filter_by(id = id)
+	try: 
+		restaurant = session.query(Restaurant).filter_by(id = id).one()
+	except:
+		session.rollback()
+		raise
+	finally:
+		session.close()
+
 	return restaurant
 
 def updateRestaurant(id, newName):
+	print "update restaurant"
 	session = getSession()
-	restaurant = session.query(Restaurant).filter_by(id = id)
-	restaurant.name = newName
-	session.add(restaurant)
-	session.commit()
+	try:
+		restaurant = session.query(Restaurant).filter_by(id = id)
+		print restaurant.name
+		restaurant.name = newName
+		session.add(restaurant)
+		session.commit()
+	except:
+		session.rollback()
+		raise
+	finally:
+		session.close()
 
 def deleteRestaurant(id):
+	print "update restaurant"
 	session = getSession()
-	restaurant = session.query(Restaurant).filter_by(id = id)
-	session.delete(restaurant)
-	session.commit()
+	try:
+		restaurant = session.query(Restaurant).filter_by(id = id)
+		session.delete(restaurant)
+		session.commit()
+	except:
+		session.rollback()
+		raise
+	finally:
+		session.close()
+
+
