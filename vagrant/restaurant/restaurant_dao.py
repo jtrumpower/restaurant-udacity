@@ -2,15 +2,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Restaurant, MenuItem
 
-def getSession():
-	engine = create_engine('sqlite:///restaurantmenu.db')
-	Base.metadata.bind = engine
-	DBSession = sessionmaker(bind = engine)
-	session = DBSession()
-	return session
+engine = create_engine('sqlite:///restaurantmenu.db')
+Base.metadata.bind = engine
+
+DBSession = sessionmaker(bind = engine)
+session = DBSession()
 
 def addRestaurant(name):
-	session = getSession()
 	try:
 		restaurant = Restaurant(name = name)
 		session.add(restaurant)
@@ -22,7 +20,6 @@ def addRestaurant(name):
 		session.close()
 
 def getRestaurants():
-	session = getSession()
 	try: 
 		restaurants = session.query(Restaurant).all()
 	except:
@@ -33,8 +30,18 @@ def getRestaurants():
 
 	return restaurants
 
+def getMenuItemsByRestaurant(restaurant_id):
+	try: 
+		menuItems = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+	except:
+		session.rollback()
+		raise
+	finally:
+		session.close()
+
+	return menuItems
+
 def getRestaurant(id):
-	session = getSession()
 	try: 
 		restaurant = session.query(Restaurant).filter_by(id = id).one()
 	except:
@@ -45,8 +52,18 @@ def getRestaurant(id):
 
 	return restaurant
 
+def getMenuItemByRestaurant(restaurant_id, menuItem_id):
+	try: 
+		menuItem = session.query(MenuItem).filter_by(id = menuItem_id, restaurant_id=restaurant_id).one()
+	except:
+		session.rollback()
+		raise
+	finally:
+		session.close()
+
+	return menuItem
+
 def updateRestaurant(id, newName):
-	session = getSession()
 	try:
 		restaurant = session.query(Restaurant).filter_by(id = id).one()
 		restaurant.name = newName
@@ -59,7 +76,6 @@ def updateRestaurant(id, newName):
 		session.close()
 
 def deleteRestaurant(id):
-	session = getSession()
 	try:
 		restaurant = session.query(Restaurant).filter_by(id = id).one()
 		session.delete(restaurant)
