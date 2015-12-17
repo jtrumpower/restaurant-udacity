@@ -1,22 +1,3 @@
-<!--<h3>
-  Edit menu item <i>{{item.name}}</i> from restaurant <i>{{restaurant.name}}</i>
-</h3>
-<br />
-<form method="POST" action="{{url_for('editMenuItem', restaurant_id=restaurant.id, menu_id=item.id)}}" >
-  Item Name:
-  <input type="text" name="name" placeholder="{{item.name}}" />
-  <br />
-  Item price:
-  <input type="text" name="price" placeholder="{{item.price}}" />
-  <br />
-  Item Description:
-  <input type="text" name="description" placeholder="{{item.description}}" />
-  <br />
-  <a href="{{url_for('restaurantMenu', restaurant_id=restaurant.id)}}">cancel</a>
-  <input type="submit" value="submit" />
-</form>-->
-
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -57,26 +38,26 @@
     <div class="container" >
       <div class="page-header">
         <h1>
-          Edit {{item.name}}?
+          Create new menu item for {{restaurant.name}}
         </h1>
       </div>
 
-      <form class="edit-form" method="POST" action="{{url_for('editMenuItem', restaurant_id=restaurant.id, menu_id=item.id)}}" >
+      <form class="edit-form" method="POST" action="{{url_for('newMenuItem', restaurant_id=restaurant.id)}}" >
         <div class="input-group">
           <span class="input-group-addon" id="basic-addon1">Name</span>
-          <input type="text" class="form-control" name="name" placeholder="{{item.name}}" aria-describedby="basic-addon1">
+          <input type="text" class="form-control" name="name" placeholder="Burger" aria-describedby="basic-addon1">
         </div>
         <div class="input-group">
           <span class="input-group-addon" id="basic-addon1">Course</span>
-          <input type="text" class="form-control" name="course" placeholder="{{item.course}}" aria-describedby="basic-addon1">
+          <input type="text" class="form-control" name="course" placeholder="Entree" aria-describedby="basic-addon1">
         </div>
         <div class="input-group">
           <span class="input-group-addon" id="basic-addon1">Price</span>
-          <input type="text" class="form-control" name="price" placeholder="{{item.price}}" aria-describedby="basic-addon1">
+          <input type="text" class="form-control" name="price" placeholder="7.99" aria-describedby="basic-addon1">
         </div>
         <div class="input-group">
           <span class="input-group-addon" id="basic-addon1">Description</span>
-          <input type="text" class="form-control" name="description" placeholder="{{item.description}}" aria-describedby="basic-addon1">
+          <input type="text" class="form-control" name="description" placeholder="The best tasting burger you will ever eat" aria-describedby="basic-addon1">
         </div>
         <div class="form-buttons">
           <a href="{{ url_for('restaurantMenu', restaurant_id=restaurant.id) }}">

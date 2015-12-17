@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Restaurant, MenuItem
@@ -6,34 +6,32 @@ import restaurant_dao
 
 app = Flask(__name__)
 
+
+@app.route('/restaurant/<int:restaurant_id>/menu-item/JSON')
+def restaurantMenuJSON(restaurant_id):
+  restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
+  items = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+  return jsonify(MenuItems=[i.serialize for i in items])
+
+
+@app.route('/restaurant/<int:restaurant_id>/menu-item/<int:menu_id>/JSON')
+def restaurantMenuItemJSON(restaurant_id, menu_id):
+  item = restaurant_dao.getMenuItemByRestaurant(restaurant_id, menu_id)
+  return jsonify(MenuItem=item.serialize)
+
+
 @app.route('/')
 @app.route('/restaurants/')
 def restaurantMenus():
   restaurants = restaurant_dao.getRestaurants()
-  output = ''
   restaurants_arr = []
+
   for restaurant in restaurants:
   	items = restaurant_dao.getMenuItemsByRestaurant(restaurant.id)
   	setattr(restaurant, "items", items)
   	restaurants_arr.append(restaurant)
-  	print restaurant.items
-    # output += '<a href="/restaurant/%s/">Restaurant <i>%s</i></a>' % (restaurant.id, restaurant.name)
-    # output += '</br>'
-    # output += '<a href="/restaurant/%s/menu-item/new">Create new Menu item for <i>%s</i></a>' % (restaurant.id, restaurant.name)
-    # output += '</br>'
-    # output += '</br>'
-    # for item in items:
-    #   output += item.name
-    #   output += '</br>'
-    #   output += item.price
-    #   output += '</br>'
-    #   output += item.description
-    #   output += '</br>'
-    #   output += '<a href="/restaurant/%s/menu-item/%s/edit">Edit</a>' % (restaurant.id, item.id)
-    #   output += '</br>'
-    #   output += '<a href="/restaurant/%s/menu-item/%s/delete">Delete</a>' % (restaurant.id, item.id)
-    #   output += '</br>'
-    #   output += '</br>'
+
+
   return render_template('restaurants.html', restaurants=restaurants_arr)
 
 
@@ -41,82 +39,85 @@ def restaurantMenus():
 def restaurantMenu(restaurant_id):
   restaurant = restaurant_dao.getRestaurant(restaurant_id)
   items = restaurant_dao.getMenuItemsByRestaurant(restaurant_id)
-  output = ''
-  output = '<a href="/restaurant/%s/menu-item/new">Create new Menu item for <i>%s</i></a>' % (restaurant.id, restaurant.name)
-  output += '</br>'
-  output += '</br>'
-  for i in items:
-    output += i.name
-    output += '</br>'
-    output += i.price
-    output += '</br>'
-    output += i.description
-    output += '</br>'
-    output += '<a href="/restaurant/%s/menu-item/%s/edit">Edit</a>' % (restaurant.id, i.id)
-    output += '</br>'
-    output += '<a href="/restaurant/%s/menu-item/%s/delete">Delete</a>' % (restaurant.id, i.id)
-    output += '</br>'
-    output += '</br>'
+
   return render_template('restaurant.html', restaurant=restaurant, items=items)
 
 
-# Task 1: Create route for newMenuItem function here
+@app.route('/restaurant/<int:restaurant_id>/menu-item/<int:menu_id>/')
+def restaurantMenuItem(restaurant_id, menu_id):
+  restaurant = restaurant_dao.getRestaurant(restaurant_id)
+  item = restaurant_dao.getMenuItemByRestaurant(restaurant_id, menu_id)
 
-@app.route('/restaurant/<int:restaurant_id>/menu-item/new/')
+  return render_template('menu-item.html', restaurant=restaurant, item=item)
+
+
+@app.route('/restaurant/new/', methods=['GET','POST'])
+def newRestaurant():
+  if request.method == 'POST':
+    restaurant_dao.addRestaurant(request.form['name'])
+    flash("New restaurant created!")
+    return redirect(url_for('restaurantMenus'))
+  else:
+    return render_template('new-restaurant.html')
+
+
+@app.route('/restaurant/<int:restaurant_id>/menu-item/new/', methods=['GET','POST'])
 def newMenuItem(restaurant_id):
   restaurant = restaurant_dao.getRestaurant(restaurant_id)
-  output = ''
-  output += '<h3>Create new menu item for <i>%s</i></h3>' % restaurant.name
-  output += '<br />'
-  output += '<form method="POST" action="/restaurant/%s/menu-item/new" >' % restaurant_id
-  output += '<input type="text" name="name" placeholder="Item name" />'
-  output += '<br />'
-  output += '<input type="text" name="price" placeholder="Item price" />'
-  output += '<br />'
-  output += '<input type="text" name="description" placeholder="Item description" />'
-  output += '<br />'
-  output += '<input type="submit" value="submit" />'
-  output += '</form>'
-  return render_template('new-restaurant.html', restaurant=restaurant)
+  if request.method == 'POST':
+    restaurant_dao.addMenuItem(restaurant_id, request.form['name'], request.form['course'], request.form['price'], request.form['description'])
+    flash("New menu item created!")
+    return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
+  else:
+    return render_template('new-menu-item.html', restaurant=restaurant)
 
-# Task 2: Create route for editMenuItem function here
 
-@app.route('/restaurant/<int:restaurant_id>/menu-item/<int:menu_id>/edit')
+@app.route('/restaurant/<int:restaurant_id>/edit/', methods=['GET','POST'])
+def editRestaurant(restaurant_id):
+  if request.method == 'POST':
+    restaurant_dao.updateRestaurant(restaurant_id, request.form['name'])
+    flash("Edited restaurant!")
+    return redirect(url_for('restaurantMenus'))
+  else:
+    restaurant = restaurant_dao.getRestaurant(restaurant_id)
+    return render_template('edit-restaurant.html', restaurant=restaurant)
+
+
+@app.route('/restaurant/<int:restaurant_id>/menu-item/<int:menu_id>/edit/', methods=['GET','POST'])
 def editMenuItem(restaurant_id, menu_id):
-  restaurant = restaurant_dao.getRestaurant(restaurant_id)
-  item = restaurant_dao.getMenuItemByRestaurant(restaurant_id, menu_id)
-  output = ''
-  output += '<h3>Edit menu item <i>%s</i> from restaurant <i>%s</i></h3>' % (item.name, restaurant.name)
-  output += '<br />'
-  output += '<form method="POST" action="/restaurant/%s/menu-item/%s/edit" >' % (restaurant_id, menu_id)
-  output += '<input type="text" name="name" placeholder="Item name" value="%s" />' % item.name
-  output += '<br />'
-  output += '<input type="text" name="price" placeholder="Item price" value="%s" />' % item.price
-  output += '<br />'
-  output += '<input type="text" name="description" placeholder="Item description" value="%s" />' % item.description
-  output += '<br />'
-  output += '<input type="submit" value="submit" />'
-  output += '</form>'
-  return render_template('edit-menu-item.html', restaurant=restaurant, items=item)
+  if request.method == 'POST':
+    restaurant_dao.updateMenuItem(menu_id, request.form['name'], request.form['course'], request.form['price'], request.form['description'])
+    flash("Edited menu item!")
+    return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
+  else:
+    restaurant = restaurant_dao.getRestaurant(restaurant_id)
+    item = restaurant_dao.getMenuItemByRestaurant(restaurant_id, menu_id)
+    return render_template('edit-menu-item.html', restaurant=restaurant, item=item)
 
-# Task 3: Create a route for deleteMenuItem function here
 
-@app.route('/restaurant/<int:restaurant_id>/menu-item/<int:menu_id>/delete') 
+@app.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET','POST']) 
+def deleteRestaurant(restaurant_id):
+  if request.method == 'POST':
+    restaurant_dao.deleteRestaurant(restaurant_id)
+    flash("Restaurant deleted!")
+    return redirect(url_for('restaurantMenus'))
+  else:
+    restaurant = restaurant_dao.getRestaurant(restaurant_id)
+    return render_template('delete-restaurant.html', restaurant=restaurant)
+
+
+@app.route('/restaurant/<int:restaurant_id>/menu-item/<int:menu_id>/delete/', methods=['GET','POST']) 
 def deleteMenuItem(restaurant_id, menu_id):
-  restaurant = restaurant_dao.getRestaurant(restaurant_id)
-  item = restaurant_dao.getMenuItemByRestaurant(restaurant_id, menu_id)
-
-  delete_link = "/restaurant/%s/menu-item/%s/delete" % (restaurant_id, menu_id)
-
-  output = ''
-  output += '<h3>Delete menu item <i>%s</i> from restaurant <i>%s</i>?</h3>' % (item.name, restaurant.name)
-  output += '<br />'
-  output += '<form method="POST" action="/restaurant/%s/menu-item/%s/delete" >' % (restaurant_id, menu_id)
-  output += '<a href="/restaurants/%s/"><input type="button" value="No" /></a>' % restaurant.id
-  output += '<input type="submit" value="Yes" />'
-  output += '</form>'
-  return render_template('delete-menu-item.html', restaurant=restaurant, items=items)
+  if request.method == 'POST':
+    restaurant_dao.deleteMenuItem(menu_id)
+    flash("Menu item deleted!")
+    return redirect(url_for('restaurantMenu', restaurant_id=restaurant_id))
+  else:
+    restaurant = restaurant_dao.getRestaurant(restaurant_id)
+    item = restaurant_dao.getMenuItemByRestaurant(restaurant_id, menu_id)
+    return render_template('delete-menu-item.html', restaurant=restaurant, item=item)
 
 if __name__ == '__main__':
+    app.secret_key = 'super_secret_key'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)

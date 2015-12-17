@@ -1,0 +1,17 @@
+body { padding-top: 70px; }
+.panel-heading .right {
+	float: right;
+	padding-left: 10px;
+}
+
+a.create-new button {
+	margin-bottom: 10px;
+}
+
+form.edit-form .input-group {
+	margin-bottom: 5px;
+}
+
+form.edit-form .input-group, form.edit-form .form-buttons {
+	margin-bottom: 5px;
+}
