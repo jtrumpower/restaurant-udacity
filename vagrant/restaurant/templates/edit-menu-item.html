@@ -78,6 +78,46 @@
           <span class="input-group-addon" id="basic-addon1">Description</span>
           <input type="text" class="form-control" name="description" placeholder="{{item.description}}" aria-describedby="basic-addon1">
         </div>
+        <div class="row">
+          <div class="col-lg-2">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <input type="radio" name="course" {{ 'checked' if item.course == 'Appetizer' }} value="Appetizer" aria-label="Appetizer">
+              </span>
+              <span class="form-control" aria-label="Appetizer">Appetizer</span>
+            </div><!-- /input-group -->
+          </div><!-- /.col-lg-6 -->
+        </div><!-- /.row -->
+        <div class="row">
+          <div class="col-lg-2">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <input type="radio" name="course" {{ 'checked' if item.course == 'Entree' }} value="Entree" aria-label="Entree">
+              </span>
+              <span class="form-control" aria-label="Entree">Entree</span>
+            </div><!-- /input-group -->
+          </div><!-- /.col-lg-6 -->
+        </div><!-- /.row -->
+        <div class="row">
+          <div class="col-lg-2">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <input type="radio" name="course" {{ 'checked' if item.course == 'Dessert' }} value="Dessert" aria-label="Dessert">
+              </span>
+              <span class="form-control" aria-label="Dessert">Dessert</span>
+            </div><!-- /input-group -->
+          </div><!-- /.col-lg-6 -->
+        </div><!-- /.row -->
+        <div class="row">
+          <div class="col-lg-2">
+            <div class="input-group">
+              <span class="input-group-addon">
+                <input type="radio" name="course" {{ 'checked' if item.course == 'Beverage' }} value="Beverage" aria-label="Beverage">
+              </span>
+              <span class="form-control" aria-label="Beverage">Beverage</span>
+            </div><!-- /input-group -->
+          </div><!-- /.col-lg-6 -->
+        </div><!-- /.row -->
         <div class="form-buttons">
           <a href="{{ url_for('restaurantMenu', restaurant_id=restaurant.id) }}">
             <button type="button" class="btn btn-default">Cancel</button>

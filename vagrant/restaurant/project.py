@@ -6,15 +6,19 @@ import restaurant_dao
 
 app = Flask(__name__)
 
+@app.route('/restaurants/JSON/')
+def restaurants():
+  restaurants = restaurant_dao.getRestaurants()
+  return jsonify(MenuItems=[i.serialize for i in restaurants])
 
-@app.route('/restaurant/<int:restaurant_id>/menu-item/JSON')
+
+@app.route('/restaurant/<int:restaurant_id>/menu-item/JSON/')
 def restaurantMenuJSON(restaurant_id):
-  restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-  items = session.query(MenuItem).filter_by(restaurant_id=restaurant_id).all()
+  items = restaurant_dao.getMenuItemsByRestaurant(restaurant_id)
   return jsonify(MenuItems=[i.serialize for i in items])
 
 
-@app.route('/restaurant/<int:restaurant_id>/menu-item/<int:menu_id>/JSON')
+@app.route('/restaurant/<int:restaurant_id>/menu-item/<int:menu_id>/JSON/')
 def restaurantMenuItemJSON(restaurant_id, menu_id):
   item = restaurant_dao.getMenuItemByRestaurant(restaurant_id, menu_id)
   return jsonify(MenuItem=item.serialize)
